@@ -1,7 +1,3 @@
-using HouseRentingSystem.Data;
-using Microsoft.AspNetCore.Identity;
-using Microsoft.EntityFrameworkCore;
-
 var builder = WebApplication.CreateBuilder(args);
 
 builder.Services.AddApplicationDbContex(builder.Configuration);
