@@ -5,8 +5,7 @@ using Microsoft.AspNetCore.Mvc;
 
 namespace HouseRentingSystem.Controllers
 {
-    [Authorize]
-    public class AgentController : Controller
+    public class AgentController : BaseController
     {
         private readonly IAgentService agentService;
 
