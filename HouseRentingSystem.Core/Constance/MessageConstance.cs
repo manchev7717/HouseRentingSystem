@@ -10,5 +10,7 @@
 
         public const string NoRentsToBecomeAgentMessage = "You should have no rents to become an agent!";
 
+        public const string PricePerMonthMessage = "Price Pet Month must be a positive number and less than {2} leva.";
+
     }
 }
