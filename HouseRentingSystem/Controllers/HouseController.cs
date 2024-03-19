@@ -1,4 +1,5 @@
 ﻿using HouseRentingSystem.Core.Contracts;
+using HouseRentingSystem.Core.Enum;
 using HouseRentingSystem.Core.Models.House;
 using HouseRentingSystem.CustomAttributes;
 using HouseRentingSystem.Extentions;
@@ -22,24 +23,50 @@ namespace HouseRentingSystem.Controllers
 
         [AllowAnonymous]
         [HttpGet]
-        public async Task<IActionResult> All()
+        public async Task<IActionResult> All([FromQuery]AllHousesQueryModel query)
         {
-            var model = new AllHousesQueryModel();
-            return View(model);
+            var model = await houseService.AllAsync(
+                query.Category,
+                query.SearchTerm,
+                query.Sorting,
+                query.CurrentPage,
+                AllHousesQueryModel.HousesPerPage
+                );
+
+            query.TotalHousesCount = model.TotalHousesCount;
+            query.Houses = model.Houses;
+            query.Categories = await houseService.AllCategoriesNamesAsync();
+                
+            return View(query);
         }
 
         [HttpGet]
 
         public async Task<IActionResult> Mine()
         {
-            var model = new AllHousesQueryModel();
-            return View(model);
+            IEnumerable<HouseServiceModel> myHouses;
+            var userId = User.Id();
+            if (await agentService.ExistsByIdAsync(userId))
+            {
+                var agentId = await agentService.GetAgentIdAsync(userId) ?? 0;
+                myHouses = await houseService.AllHousesByAgentIdAsync(agentId);
+            }
+            else
+            {
+                myHouses = await houseService.AllHousesByUsertIdAsync(userId);
+            }
+
+            return View(myHouses);
         }
 
         [HttpGet]
         public async Task<IActionResult> Details(int id)
         {
-            var model = new HouseDetailsViewModel();
+            if (await houseService.ExistsAsync(id) == false)
+            {
+                return BadRequest();
+            }
+            var model = await houseService.HouseDetailsById(id);
             return View(model);
         }
 

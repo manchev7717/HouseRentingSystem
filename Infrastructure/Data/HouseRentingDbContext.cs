@@ -13,7 +13,7 @@ namespace HouseRentingSystem.Infrastructure.Data
 
         }
 
-        public DbSet<Models.Agent> Agents { get; set; } = null!;
+        public DbSet<Agent> Agents { get; set; } = null!;
 
         public DbSet<Category> Categories { get; set; } = null!;
 
