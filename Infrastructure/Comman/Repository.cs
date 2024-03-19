@@ -38,5 +38,10 @@ namespace HouseRentingSystem.Infrastructure.Comman
         {
             return await context.SaveChangesAsync();
         }
+
+        public async Task<T?> GetByIdAsync<T>(object id) where T : class
+        {
+            return await DbSet<T>().FindAsync(id);
+        }
     }
 }
