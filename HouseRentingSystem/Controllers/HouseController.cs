@@ -151,24 +151,81 @@ namespace HouseRentingSystem.Controllers
         [HttpGet]
         public async Task<IActionResult> Delete(int id)
         {
-            var model = new HouseDetailsViewModel();
+            if (await houseService.ExistsAsync(id) == false)
+            {
+                return BadRequest();
+            }
+
+            if (await houseService.HasAgentByIdAsync(id,User.Id()) == false)
+            {
+                return Unauthorized();
+            }
+
+            var house = await houseService.HouseDetailsByIdAsync(id);
+
+            var model = new HouseDetailsViewModel()
+            {
+                Title = house.Title,
+                Address = house.Address,
+                ImageUrl = house.ImageUrl,
+            };
             return View(model);
         }
         [HttpPost]
         public async Task<IActionResult> Delete(HouseDetailsViewModel model)
         {
-            return RedirectToAction(nameof(All));
+            if (await houseService.ExistsAsync(model.Id) == false)
+            {
+                return BadRequest();
+            }
 
+            if (await houseService.HasAgentByIdAsync(model.Id, User.Id()) == false)
+            {
+                return Unauthorized();
+            }
+
+           await houseService.Delete(model.Id);
+            return RedirectToAction(nameof(All));
         }
 
         [HttpPost]
         public async Task<IActionResult> Rent(int id)
         {
+            if (await houseService.ExistsAsync(id) == false)
+            {
+                return BadRequest();
+            }
+
+            if (await agentService.ExistsByIdAsync(User.Id()))
+            {
+                return Unauthorized();
+            }
+
+            if (await houseService.IsRented(id))
+            {
+                return BadRequest();
+            }
+
+            await houseService.Rent(id, User.Id());
+
             return RedirectToAction(nameof(Mine));
         }
         [HttpPost]
         public async Task<IActionResult> Leave(int id)
         {
+            if (await houseService.ExistsAsync(id) == false || 
+                await houseService.IsRented(id) == false) 
+            {
+                return BadRequest();
+            }
+
+            if (await houseService.IsRentedByUserWithId(id, User.Id()) == false)
+            {
+                return Unauthorized();
+            }
+
+            await houseService.Leave(id);
+
             return RedirectToAction(nameof(Mine));
         }
 

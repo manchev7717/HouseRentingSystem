@@ -124,6 +124,18 @@ namespace HouseRentingSystem.Core.Services.House
             return house.Id;
         }
 
+        public async Task Delete(int houseId)
+        {
+            var house = await repository.GetByIdAsync<Infrastructure.Data.Models.House>(houseId);
+
+            if (house != null)
+            {
+                await repository.Remove(house);
+                await repository.SaveChangesAsync();
+            }
+
+        }
+
         public async Task EditAsync(int houseId, HouseFormModel model)
         {
             var house = await repository.GetByIdAsync<Infrastructure.Data.Models.House>(houseId);
@@ -200,6 +212,27 @@ namespace HouseRentingSystem.Core.Services.House
                 .FirstAsync();
         }
 
+        public async Task<bool> IsRented(int id)
+        {
+            var house = await repository.GetByIdAsync<Infrastructure.Data.Models.House>(id);
+            var result = house?.RenterId != null;
+            return result;
+        }
+
+        public async Task<bool> IsRentedByUserWithId(int houseId, string UserId)
+        {
+            var house = await repository.GetByIdAsync<Infrastructure.Data.Models.House>(houseId);
+            if (house == null)
+            {
+                return false;
+            }
+            if (house.RenterId == null)
+            {
+                return false;
+            }
+            return true;
+        }
+
         public async Task<IEnumerable<HouseIndexServiceModel>> LastThreeHousesAsync()
         {
             return await repository
@@ -216,5 +249,26 @@ namespace HouseRentingSystem.Core.Services.House
 
         }
 
+        public async Task Leave(int houseId)
+        {
+            var house = await repository.GetByIdAsync<Infrastructure.Data.Models.House>(houseId);
+            if (house != null)
+            {
+                house.RenterId = null;
+                await repository.SaveChangesAsync();
+            }
+
+        }
+
+        public async Task Rent(int houseId, string userId)
+        {
+            var house = await repository.GetByIdAsync<Infrastructure.Data.Models.House>(houseId);
+
+            if (house != null)
+            {
+                house.RenterId = userId;
+                await repository.SaveChangesAsync();
+            }
+        }
     }
 }
